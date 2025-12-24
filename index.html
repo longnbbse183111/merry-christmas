@@ -14,6 +14,19 @@
       box-sizing: border-box;
     }
 
+    /* Hidden code text at bottom */
+    .code-footer {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px;
+      opacity: 0.25;
+      letter-spacing: 2px;
+      pointer-events: none;
+      user-select: none;
+    }
+
     body {
       height: 100vh;
       background: linear-gradient(180deg, #0f2027, #203a43, #2c5364);
@@ -222,7 +235,7 @@
   <div class="gift-container" id="giftContainer">
     <div class="gift-box" onclick="openGift()">
       <div class="gift-icon">🎁</div>
-      <div class="gift-text">Click vào hộp quà để mở</div>
+      <div class="gift-text">Click vào hộp quà để mở nhé</div>
     </div>
   </div>
 
@@ -231,10 +244,10 @@
     <div class="card" id="card">
       <h1>Merry Christmas 🎄</h1>
 
-      <p>Gửi <strong>crush</strong>,</p>
+      <p>Gửi <strong>Ngân</strong>,</p>
 
       <p>
-        Giáng sinh này chúc bạn luôn vui vẻ,<br>
+        Giáng sinh này chúc Ngân luôn vui vẻ,<br>
         ấm áp và gặp thật nhiều điều tốt đẹp ✨
       </p>
 
@@ -344,6 +357,10 @@
       }
     }, { once: true });
   </script>
+
+  <div class="code-footer">
+    101  101110101 11101110111 101010111 1  111010111 11101110111 1011101
+  </div>
 
 </body>
 </html>
