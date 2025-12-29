@@ -2,6 +2,11 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0f2027">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Merry Christmas 🎄</title>
 
   <!-- Google Fonts -->
@@ -23,15 +28,19 @@
       font-size: 14px;
       opacity: 0.25;
       letter-spacing: 2px;
+      pointer-events: none;
     }
 
     body {
       height: 100vh;
+      height: 100dvh; /* Dynamic viewport height for mobile */
       background: linear-gradient(180deg, #0f2027, #203a43, #2c5364);
       font-family: 'Poppins', sans-serif;
       color: #fff;
       overflow: hidden;
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+      touch-action: manipulation; /* Better touch handling */
     }
 
     /* ❄ Snow */
@@ -64,11 +73,70 @@
     .card {
       background: rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px); /* Safari support */
       border-radius: 20px;
       padding: 50px 60px;
       max-width: 600px;
+      width: 100%;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
       animation: fadeIn 1.5s ease;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      .card {
+        padding: 30px 25px;
+        border-radius: 15px;
+        margin: 10px;
+      }
+
+      h1 {
+        font-size: 32px;
+        margin-bottom: 15px;
+      }
+
+      p {
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 12px;
+      }
+
+      .gift-icon {
+        font-size: 100px;
+      }
+
+      .gift-text {
+        font-size: 20px;
+        margin-top: 20px;
+        padding: 0 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 25px 20px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      p {
+        font-size: 15px;
+      }
+
+      .gift-icon {
+        font-size: 80px;
+      }
+
+      .gift-text {
+        font-size: 18px;
+      }
+
+      .code-footer {
+        font-size: 10px;
+        bottom: 5px;
+      }
     }
 
     @keyframes fadeIn {
@@ -164,12 +232,17 @@
     .gift-box {
       position: relative;
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
       animation: float 3s ease-in-out infinite;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
+      padding: 20px;
+      min-width: 200px;
+      min-height: 200px;
     }
 
     @keyframes float {
@@ -181,10 +254,18 @@
       }
     }
 
-    .gift-box:hover {
+    .gift-box:hover,
+    .gift-box:active {
       animation: none;
       transform: scale(1.1);
       transition: transform 0.3s ease;
+    }
+
+    /* Touch feedback for mobile */
+    @media (hover: none) {
+      .gift-box:active {
+        transform: scale(0.95);
+      }
     }
 
     .gift-icon {
@@ -226,14 +307,24 @@
 
 <body>
 
-  <!-- YouTube hidden player -->
-  <iframe id="youtube-player" width="1" height="1" style="position: fixed; bottom: -10px; right: -10px;" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <!-- YouTube hidden player - optimized for mobile -->
+  <iframe 
+    id="youtube-player" 
+    width="1" 
+    height="1" 
+    style="position: fixed; bottom: -10px; right: -10px; opacity: 0; pointer-events: none;" 
+    frameborder="0" 
+    allow="autoplay; encrypted-media; accelerometer; gyroscope; picture-in-picture" 
+    allowfullscreen
+    playsinline
+    webkit-playsinline>
+  </iframe>
 
   <!-- 🎁 Gift Box Screen -->
   <div class="gift-container" id="giftContainer">
-    <div class="gift-box" onclick="openGift()">
+    <div class="gift-box" onclick="openGift()" ontouchstart="this.style.transform='scale(0.95)'" ontouchend="this.style.transform='scale(1)'">
       <div class="gift-icon">🎁</div>
-      <div class="gift-text">Click vào hộp quà để mở nhé</div>
+      <div class="gift-text">Chạm vào hộp quà để mở nhé</div>
     </div>
   </div>
 
@@ -270,7 +361,7 @@
       document.body.appendChild(snow);
     }
 
-    /* 🎁 Open Gift */
+    /* 🎁 Open Gift - với hỗ trợ touch events cho mobile */
     function openGift() {
       const giftContainer = document.getElementById('giftContainer');
       const card = document.getElementById('card');
@@ -278,15 +369,30 @@
       // Ẩn gift box
       giftContainer.classList.add('hidden');
 
-      // PHẢI gọi sau click - phát nhạc ngay và luôn chạy
+      // PHẢI gọi sau click/touch - phát nhạc ngay và luôn chạy
       if (!player) {
         initPlayer();
       }
-      if (player) {
-        player.src = getEmbedUrl(true);
-        isPlaying = true;
-        musicStarted = true;
-      }
+      
+      // Đảm bảo player sẵn sàng trước khi phát
+      setTimeout(() => {
+        if (player) {
+          player.src = getEmbedUrl(true);
+          isPlaying = true;
+          musicStarted = true;
+          
+          // Thử phát lại nếu không tự động phát (cho mobile)
+          setTimeout(() => {
+            if (player && player.contentWindow) {
+              try {
+                player.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+              } catch(e) {
+                console.log('YouTube API not available, using autoplay');
+              }
+            }
+          }, 500);
+        }
+      }, 100);
 
       // Hiện card lời chúc
       setTimeout(() => {
@@ -301,8 +407,9 @@
     let musicStarted = false;
     let player;
 
-    // Hàm tạo URL embed
+    // Hàm tạo URL embed - optimized for mobile
     function getEmbedUrl(autoplay) {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       return 'https://www.youtube.com/embed/' + videoId + 
              '?autoplay=' + (autoplay ? '1' : '0') + 
              '&mute=' + (autoplay ? '0' : '1') + 
@@ -310,7 +417,10 @@
              '&playlist=' + videoId + 
              '&controls=0' + 
              '&rel=0' + 
-             '&playsinline=1';
+             '&playsinline=1' +
+             '&enablejsapi=1' +
+             '&origin=' + window.location.origin +
+             (isMobile ? '&modestbranding=1' : '');
     }
 
     // Khởi tạo sau khi DOM load xong
@@ -347,19 +457,40 @@
       initPlayer();
     }
 
-    // Lắng nghe sự kiện click để phát nhạc (backup nếu không click vào quà)
-    document.body.addEventListener('click', function(e) {
+    // Lắng nghe sự kiện click/touch để phát nhạc (backup nếu không click vào quà)
+    // Hỗ trợ cả click và touch cho mobile
+    const startMusicOnInteraction = function(e) {
       // Chỉ phát nhạc nếu không phải click vào hộp quà
       if (!e.target.closest('.gift-box')) {
         startMusic();
       }
-    }, { once: true });
+    };
+    
+    document.body.addEventListener('click', startMusicOnInteraction, { once: true });
+    document.body.addEventListener('touchend', startMusicOnInteraction, { once: true });
+    
+    // Đảm bảo touch events hoạt động tốt trên mobile
+    document.addEventListener('touchstart', function(e) {
+      // Prevent double-tap zoom
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    }, { passive: true });
+    
+    // Prevent pull-to-refresh on mobile
+    let lastTouchY = 0;
+    document.addEventListener('touchmove', function(e) {
+      const touchY = e.touches[0].clientY;
+      if (touchY > lastTouchY && window.scrollY === 0) {
+        e.preventDefault();
+      }
+      lastTouchY = touchY;
+    }, { passive: false });
   </script>
 
   <div class="code-footer">
-    101  101110101 11101110111 101010111 1  111010111 11101110111 1011101
+    101  101110101 11101110111 101010111 1  11101110111 11101110111 1010111
   </div>
 
 </body>
 </html>
-
